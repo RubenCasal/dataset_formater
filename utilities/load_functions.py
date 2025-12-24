@@ -1,4 +1,4 @@
-from dataset_interface import DatasetIR, Image, Annotation, Category, BBox
+from utilities.dataset_interface import DatasetIR, Image, Annotation, Category, BBox
 from pathlib import Path
 from typing import List
 from PIL import Image as PILImage
@@ -69,17 +69,54 @@ def load_yolo_dataset(root: str) -> DatasetIR:
     )
 
 
-def load_coco_dataset(split_root: str) -> DatasetIR:
+def load_coco_estandar_dataset(split_root: str) -> DatasetIR:
+    """
+    COCO estándar (MS-COCO style), con layout:
 
+      base/
+        train/
+          images/...
+        val/
+          images/...
+        test/...
+        annotations/
+          instances_train.json (o instances_train2017.json)
+          instances_val.json   (o instances_val2017.json)
+          instances_test.json  (opcional)
+
+    split_root = base/train, base/val, base/test
+    """
     split_dir = Path(split_root)
     if not split_dir.exists():
         raise FileNotFoundError(f"Split dir not found: {split_dir}")
 
-    ann_path = split_dir / "_annotations.coco.json"
-    if not ann_path.exists():
-        raise FileNotFoundError(f"COCO annotations JSON not found at: {ann_path}")
+    split_name = split_dir.name  # "train", "val", "test", "valid"
+    base = split_dir.parent  # base = dataset_root
+    ann_dir = base / "annotations"
 
-    print(f"[INFO] Using COCO annotations: {ann_path}")
+    if not ann_dir.exists():
+        raise FileNotFoundError(f"Annotations folder not found: {ann_dir}")
+
+    # candidatos típicos de COCO
+    candidate_names = [
+        f"instances_{split_name}.json",
+        f"instances_{split_name}2017.json",
+        f"{split_name}.json",
+    ]
+
+    ann_path = None
+    for name in candidate_names:
+        p = ann_dir / name
+        if p.exists() and p.is_file():
+            ann_path = p
+            break
+
+    if ann_path is None:
+        raise FileNotFoundError(
+            f"No COCO JSON found for split '{split_name}' in {ann_dir}"
+        )
+
+    print(f"[INFO] Using COCO estándar annotations for '{split_name}': {ann_path}")
 
     data = json.loads(ann_path.read_text(encoding="utf-8"))
 
@@ -110,6 +147,7 @@ def load_coco_dataset(split_root: str) -> DatasetIR:
         seg = a.get("segmentation")
         flat_seg = None
         if isinstance(seg, list) and seg:
+            # puede ser [x1,y1,...] o [[x1,y1,...], ...]
             if isinstance(seg[0], list):
                 flat_seg = seg[0]
             else:

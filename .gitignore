@@ -3,3 +3,5 @@ __pycache__/*
 dataset_yolo_pruebas/*
 dataset_coco/*
 dataset_coco/*
+data_coco_prueba/*
+dataset_yolo11/*

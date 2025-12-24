@@ -1,7 +1,7 @@
-from load_functions import load_yolo_dataset, load_coco_dataset
+from utilities.load_functions import load_yolo_dataset, load_coco_estandar_dataset
 from pathlib import Path
 from typing import Optional
-from dataset_interface import DatasetIR
+from utilities.dataset_interface import DatasetIR
 from dataclasses import dataclass
 
 
@@ -9,7 +9,7 @@ def get_loader(dataset_type: str):
     if dataset_type == "yolo":
         return load_yolo_dataset
     elif dataset_type == "coco":
-        return load_coco_dataset
+        return load_coco_estandar_dataset
     else:
         raise ValueError(f"Unsupported dataset_type={dataset_type!r}")
 
