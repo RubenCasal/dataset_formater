@@ -12,6 +12,17 @@ from dataset_formater.utilities.dataset_interface import (
 import json
 
 
+def select_dump_function(fmt: str):
+    if fmt == "yolo":
+        return dump_yolo_dataset
+    elif fmt == "coco":
+        return dump_coco_estandar_dataset
+    elif fmt == "coco_json":
+        return dump_coco_json_dataset
+    else:
+        raise ValueError(f"Unsupported dest_format={fmt!r}")
+
+
 ######### YOLO DUMPING FUNCTIONS #########
 def dump_yolo_split(
     dataset: DatasetIR,

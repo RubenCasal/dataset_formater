@@ -1,6 +1,7 @@
 import argparse
 from dataset_formater.utilities.dataset_folder_interface import DatasetFolder
 from dataset_formater.utilities.dump_functions import (
+    select_dump_function,
     dump_yolo_dataset,
     dump_coco_estandar_dataset,
     dump_coco_json_dataset,
@@ -13,17 +14,6 @@ SOURCE_PATH = ""  # p.ej. "data/source_yolo"
 SOURCE_FORMAT = ""  # "yolo" | "coco" | "coco_json"
 DEST_PATH = ""  # p.ej. "data/dest_coco"
 DEST_FORMAT = ""  # "yolo" | "coco" | "coco_json"
-
-
-def select_dump_function(fmt: str):
-    if fmt == "yolo":
-        return dump_yolo_dataset
-    elif fmt == "coco":
-        return dump_coco_estandar_dataset
-    elif fmt == "coco_json":
-        return dump_coco_json_dataset
-    else:
-        raise ValueError(f"Unsupported dest_format={fmt!r}")
 
 
 # FORMATS SUPPORTED: coco, coco_json, yolo
