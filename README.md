@@ -25,6 +25,7 @@ The goal is to centralize typical dataset housekeeping tasks in a single, consis
 ### `transform_dataset.py`
 
 **Description**  
+
 Convert a dataset between `yolo`, `coco` and `coco_json` formats, preserving the `train` / `val` / `test` split structure.
 
 **Arguments**
@@ -49,6 +50,7 @@ Convert a dataset between `yolo`, `coco` and `coco_json` formats, preserving the
 ### `preview_dataset.py`
 
 **Description**  
+
 Generate visual previews of dataset annotations (YOLO / COCO / COCO JSON) by drawing boxes or masks over images for each split, with optional blur and max-image cap.
 
 **Arguments**
@@ -73,6 +75,7 @@ Generate visual previews of dataset annotations (YOLO / COCO / COCO JSON) by dra
 ### `match_preview_folder.py`
 
 **Description**  
+
 Prune a dataset by matching it to a preview folder: only images that remain in the preview are preserved in the final dataset, after an interactive confirmation (`yes` is required before deletion).
 
 **Arguments**
@@ -95,6 +98,7 @@ Prune a dataset by matching it to a preview folder: only images that remain in t
 ### `get_dataset_report.py`
 
 **Description**  
+
 Generate a PDF report with global statistics for a dataset (YOLO / COCO / COCO JSON), including per-split stats, category distribution and resolution/bbox plots.
 
 **Arguments**
@@ -117,6 +121,7 @@ Generate a PDF report with global statistics for a dataset (YOLO / COCO / COCO J
 ### `get_subset_dataset.py`
 
 **Description** 
+
 Create a random subset of a dataset (YOLO / COCO / COCO JSON), keeping a given fraction of images per split while preserving format and structure.
 
 **Arguments**
@@ -139,6 +144,7 @@ Create a random subset of a dataset (YOLO / COCO / COCO JSON), keeping a given f
 ### `remap_labels_dataset.py`
 
 **Description**  
+
 Remap, merge or drop classes in a dataset (YOLO / COCO / COCO JSON) according to an `ID_MAP` defined inside the script, and export the result to a chosen format.
 
 **Arguments**
@@ -159,7 +165,51 @@ Note: The class mapping `ID_MAP` (old_id -> new_id or `None` to drop) is edited 
     --dest_format yolo
 ```
 ---
+### `segmentation2detection.py`
 
+**Description**
+
+Convert a segmentation dataset (with polygon masks) into a pure detection dataset by dropping mask polygons and keeping only bounding boxes, preserving splits and target format.
+
+**Arguments**
+
+`--dataset_path` (required): Path to the segmented dataset root folder.
+
+`--dataset_format` (required): Input format: yolo, coco or coco_json.
+
+`--dest_path` (required): Path where the detection-only dataset will be saved.
+
+`--dest_format` (required): Output format: yolo, coco or coco_json.
+
+**Example**
+```
+segmentation2detection \
+  --dataset_path ./dataset_formater/data_segmented \
+  --dataset_format coco \
+  --dest_path ./dataset_formater/data_detection_only \
+  --dest_format yolo
+```
+---
+### `download_sam_checkpoint.py`
+
+**Description**
+
+Download a Segment Anything (SAM) checkpoint (vit_h, vit_l, or vit_b) into dataset_formater/sam_checkpoints (or a custom folder), with a friendly filename (sam_huge.pth, sam_large.pth, sam_base.pth).
+
+**Arguments**
+
+`--model-type` (optional): SAM variant to download: vit_h, vit_l, or vit_b (default: vit_l → sam_large.pth).
+
+`--output-dir` (optional): Custom output directory; if empty, uses <repo_root>/dataset_formater/sam_checkpoints.
+
+**Example**
+```
+download_sam_checkpoint \
+  --model-type vit_l \
+  --output-dir ./dataset_formater/sam_checkpoints
+```
+
+---
 ### `transform2segmentation.py`
 
 **Description**  
