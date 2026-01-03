@@ -19,7 +19,21 @@ It allows you to:
 The goal is to provide a practical toolkit to **speed up dataset analysis and modification workflows** for computer vision experiments.
 
 ---
+## Table of Contents
 
+- [Installation](#installation)
+- [Scripts](#scripts)
+  - [get_dataset_report.py](#get_dataset_reportpy)
+  - [preview_dataset.py](#preview_datasetpy)
+  - [transform_dataset.py](#transform_datasetpy)
+  - [get_subset_dataset.py](#get_subset_datasetpy)
+  - [match_preview_folder.py](#match_preview_folderpy)
+  - [remap_labels_dataset.py](#remap_labels_datasetpy)
+  - [segmentation2detection.py](#segmentation2detectionpy)
+  - [download_sam_checkpoint.py](#download_sam_checkpointpy)
+  - [transform2segmentation.py](#transform2segmentationpy)
+
+---
 ## Installation
 
 #### 1. Create conda environment (Python 3.10)
