@@ -1,8 +1,5 @@
-pruebas.py
 __pycache__/*
-dataset_yolo_pruebas/*
-dataset_coco/*
-dataset_coco/*
-data_coco_prueba/*
-dataset_yolo11/*
-dataset_formater/sam_checkpoints/*
+visionDS_toolkit/sam_checkpoints/*
+__pycache__/
+**/__pycache__/
+*.py[cod]

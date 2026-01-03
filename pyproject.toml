@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dataset_formater"
+name = "visionDS_toolkit"
 version = "0.1.0"
-description = "Una herramienta profesional para formateo de datasets"
+description = "A toolkit for inspecting, transforming, and standardizing computer vision datasets (YOLO / COCO / COCO-JSON) for training and analysis."
 dependencies = [
     "Pillow",
     "numpy",
@@ -21,13 +21,12 @@ dependencies = [
 
 
 [project.scripts]
-# Esto crea un comando directo en la terminal
-get_subset_dataset = "dataset_formater.scripts.get_subset_dataset:main"
-preview_dataset = "dataset_formater.scripts.preview_dataset:main"
-match_preview_folder = "dataset_formater.scripts.match_preview_folder:main"
-get_dataset_report = "dataset_formater.scripts.get_dataset_report:main"
-transform_dataset = "dataset_formater.scripts.transform_dataset:main"
-remap_dataset_labels = "dataset_formater.scripts.remap_dataset_labels:main"
-transform2segmentation = "dataset_formater.scripts.transform2segmentation:main"
-download_sam = "dataset_formater.scripts.download_sam:main"
-segmentation2detection = "dataset_formater.scripts.segmentation2detection:main"
+get_subset_dataset = "visionDS_toolkit.scripts.get_subset_dataset"
+preview_dataset = "visionDS_toolkit.scripts.preview_dataset:main"
+match_preview_folder = "visionDS_toolkit.scripts.match_preview_folder:main"
+get_dataset_report = "visionDS_toolkit.scripts.get_dataset_report:main"
+transform_dataset = "visionDS_toolkit.scripts.transform_dataset:main"
+remap_dataset_labels = "visionDS_toolkit.scripts.remap_dataset_labels:main"
+transform2segmentation = "visionDS_toolkit.scripts.transform2segmentation:main"
+download_sam = "visionDS_toolkit.scripts.download_sam:main"
+segmentation2detection = "visionDS_toolkit.scripts.segmentation2detection:main"
