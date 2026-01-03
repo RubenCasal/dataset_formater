@@ -2,7 +2,7 @@
 
 ## Overview
 
-`dataset_formater` is designed to help you:
+`visionDS_toolkit` is designed to help you:
 
 - Load datasets in YOLO, COCO, or COCO-JSON format into a common `DatasetIR` interface.
 - Manipulate images, annotations and categories programmatically (remap classes, subset, filter, etc.).
@@ -225,9 +225,6 @@ Convert a detection dataset with bounding boxes (YOLO / COCO / COCO JSON) into a
 - `--sam_model_type` (optional): SAM backbone type: `vit_h`, `vit_l`, or `vit_b` (default: `vit_l`).
 - `--sam_device` (optional): Device for inference: `cuda` or `cpu` (default: `cuda`).
 - `--score_threshold` (optional): Minimum SAM mask score to accept a prediction.
-- `--box_expansion_ratio` (optional): Relative bbox padding before feeding to SAM (for example `0.05`).
-- `--overwrite_existing` (optional flag): If set, overwrite annotations that already have segmentation.
-- `--no_recompute_bbox` (optional flag): If set, keep original bbox instead of recomputing it from the mask.
 
 **Example**
 ```
