@@ -37,34 +37,102 @@ def load_yolo_dataset(root: str) -> DatasetIR:
 
         label_path = labels_dir / (img_path.stem + ".txt")
         if label_path.exists():
-            for line in label_path.read_text().strip().splitlines():
-                if not line.strip():
+            txt = label_path.read_text(encoding="utf-8").strip()
+            if txt:
+                for line in txt.splitlines():
+                    line = line.strip()
+                    if not line:
+                        continue
+
+                    parts = line.split()
+                    if len(parts) < 5:
+                      
+                        continue
+
+                    class_id = int(parts[0])
+
+                    if class_id not in categories_map:
+                        categories_map[class_id] = Category(
+                            id=class_id,
+                            name=f"class_{class_id}",
+                        )
+
+                    nums = list(map(float, parts[1:]))
+
+                    # ---------------------------
+                    # YOLO DET: cls cx cy w h
+                    # ---------------------------
+                    if len(nums) == 4:
+                        cx, cy, bw, bh = nums
+
+                        x = (cx - bw / 2.0) * w
+                        y = (cy - bh / 2.0) * h
+                        abs_w = bw * w
+                        abs_h = bh * h
+
+                       
+                        x = max(0.0, min(x, w - 1.0))
+                        y = max(0.0, min(y, h - 1.0))
+                        abs_w = max(0.0, min(abs_w, w - x))
+                        abs_h = max(0.0, min(abs_h, h - y))
+
+                        annotations.append(
+                            Annotation(
+                                id=ann_id,
+                                image_id=img_id,
+                                category_id=class_id,
+                                bbox=BBox(x=x, y=y, width=abs_w, height=abs_h),
+                                area=abs_w * abs_h,
+                                segmentation=None,
+                            )
+                        )
+                        ann_id += 1
+                        continue
+
+                    # ---------------------------------------------
+                    # YOLO SEG: cls x1 y1 x2 y2 ... 
+                    # ---------------------------------------------
+                    if len(nums) >= 6 and (len(nums) % 2 == 0):
+                        poly_px: list[float] = []
+                        for i in range(0, len(nums), 2):
+                            xn = nums[i]
+                            yn = nums[i + 1]
+
+                            # clamp [0,1]
+                            xn = max(0.0, min(1.0, xn))
+                            yn = max(0.0, min(1.0, yn))
+
+                            poly_px.extend([xn * w, yn * h])
+
+                        xs = poly_px[0::2]
+                        ys = poly_px[1::2]
+                        if not xs or not ys:
+                            continue
+
+                        x0 = max(0.0, min(xs))
+                        y0 = max(0.0, min(ys))
+                        x1 = min(w - 1.0, max(xs))
+                        y1 = min(h - 1.0, max(ys))
+
+                        bw = max(0.0, x1 - x0)
+                        bh = max(0.0, y1 - y0)
+                        area = bw * bh 
+
+                        annotations.append(
+                            Annotation(
+                                id=ann_id,
+                                image_id=img_id,
+                                category_id=class_id,
+                                bbox=BBox(x=x0, y=y0, width=bw, height=bh),
+                                area=area,
+                                segmentation=poly_px,
+                            )
+                        )
+                        ann_id += 1
+                        continue
+
+                    # Si llega aquí: formato desconocido -> skip
                     continue
-                parts = line.split()
-                class_id = int(parts[0])
-                cx, cy, bw, bh = map(float, parts[1:5])
-
-                x = (cx - bw / 2.0) * w
-                y = (cy - bh / 2.0) * h
-                abs_w = bw * w
-                abs_h = bh * h
-
-                if class_id not in categories_map:
-                    categories_map[class_id] = Category(
-                        id=class_id,
-                        name=f"class_{class_id}",
-                    )
-
-                annotations.append(
-                    Annotation(
-                        id=ann_id,
-                        image_id=img_id,
-                        category_id=class_id,
-                        bbox=BBox(x=x, y=y, width=abs_w, height=abs_h),
-                        area=abs_w * abs_h,
-                    )
-                )
-                ann_id += 1
 
         img_id += 1
 
@@ -73,7 +141,6 @@ def load_yolo_dataset(root: str) -> DatasetIR:
         annotations=annotations,
         categories=list(categories_map.values()),
     )
-
 
 def load_coco_estandar_dataset(split_root: str) -> DatasetIR:
 

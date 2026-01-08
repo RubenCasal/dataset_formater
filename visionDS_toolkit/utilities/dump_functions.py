@@ -44,6 +44,18 @@ def _guess_images_dir(split_dir: Path) -> Path:
 ######### YOLO DUMPING FUNCTIONS #########
 
 
+def _ir_has_segmentation(dataset: DatasetIR) -> bool:
+    return any(a.segmentation is not None and len(a.segmentation) >= 6 for a in dataset.annotations)
+
+
+def _bbox_to_poly_flat(ann: Annotation) -> list[float]:
+    b = ann.bbox
+    x0, y0 = float(b.x), float(b.y)
+    x1, y1 = float(b.x + b.width), float(b.y + b.height)
+    # rectángulo (4 puntos)
+    return [x0, y0, x1, y0, x1, y1, x0, y1]
+
+
 def dump_yolo_split(
     dataset: DatasetIR,
     out_split_root: str | Path,
@@ -56,10 +68,14 @@ def dump_yolo_split(
     images_dir.mkdir(parents=True, exist_ok=True)
     labels_dir.mkdir(parents=True, exist_ok=True)
 
+    # AUTO: si el split tiene segmentación -> YOLO-SEG, si no -> YOLO-DET
+    use_seg = _ir_has_segmentation(dataset)
+
     cat_id_to_yolo: Dict[int, int] = {
         cat.id: idx
         for idx, cat in enumerate(sorted(dataset.categories, key=lambda c: c.id))
     }
+
     anns_by_image: Dict[int, list[Annotation]] = {}
     for ann in dataset.annotations:
         anns_by_image.setdefault(ann.image_id, []).append(ann)
@@ -67,23 +83,51 @@ def dump_yolo_split(
     for image in dataset.images:
         w_img, h_img = image.width, image.height
         anns = anns_by_image.get(image.id, [])
-
         lines: list[str] = []
 
         for ann in anns:
-            b = ann.bbox
+            cls_id = cat_id_to_yolo[ann.category_id]
 
+            # -------------------------
+            # YOLO-SEG (cls x1 y1 ...)
+            # -------------------------
+            if use_seg:
+                poly = ann.segmentation
+                if poly is None or len(poly) < 6:
+                    # fallback a rectángulo desde bbox
+                    poly = _bbox_to_poly_flat(ann)
+
+                if len(poly) % 2 != 0:
+                    # inválido -> skip
+                    continue
+
+                norm_vals: list[float] = []
+                for i in range(0, len(poly), 2):
+                    x = float(poly[i]) / float(w_img)
+                    y = float(poly[i + 1]) / float(h_img)
+                    x = max(0.0, min(1.0, x))
+                    y = max(0.0, min(1.0, y))
+                    norm_vals.extend([x, y])
+
+                lines.append(
+                    str(cls_id) + " " + " ".join(f"{v:.6f}" for v in norm_vals)
+                )
+                continue
+
+            # -------------------------
+            # YOLO-DET (cls cx cy w h)
+            # -------------------------
+            b = ann.bbox
             cx = (b.x + b.width / 2.0) / w_img
             cy = (b.y + b.height / 2.0) / h_img
             nw = b.width / w_img
             nh = b.height / h_img
 
-            cx = max(0.0, min(1.0, cx))
-            cy = max(0.0, min(1.0, cy))
-            nw = max(0.0, min(1.0, nw))
-            nh = max(0.0, min(1.0, nh))
+            cx = max(0.0, min(1.0, float(cx)))
+            cy = max(0.0, min(1.0, float(cy)))
+            nw = max(0.0, min(1.0, float(nw)))
+            nh = max(0.0, min(1.0, float(nh)))
 
-            cls_id = cat_id_to_yolo[ann.category_id]
             lines.append(f"{cls_id} {cx:.6f} {cy:.6f} {nw:.6f} {nh:.6f}")
 
         label_path = labels_dir / (Path(image.file_name).stem + ".txt")
@@ -133,7 +177,6 @@ def dump_yolo_dataset(
             out_split_root=out_base / "test",
             images_source_dir=src_images_dir,
         )
-
 
 ######### COCO ESTÁNDAR DUMPING FUNCTIONS #########
 
