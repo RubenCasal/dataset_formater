@@ -2,8 +2,8 @@ import argparse
 from pathlib import Path
 from typing import Optional
 
-from dataset_formater.utilities.dataset_folder_interface import DatasetFolder
-from dataset_formater.utilities.draw_annotations import visualize_dataset_ir
+from visionDS_toolkit.utilities.dataset_folder_interface import DatasetFolder
+from visionDS_toolkit.utilities.draw_annotations import visualize_dataset_ir
 
 # =========================
 # DEFAULT CONSTANTS

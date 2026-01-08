@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Dict, Tuple, Optional
-from dataset_formater.utilities.dataset_interface import DatasetIR, Annotation
+from visionDS_toolkit.utilities.dataset_interface import DatasetIR, Annotation
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 import random
 import colorsys
